@@ -1,4 +1,6 @@
 
+WARNING: this is broken, just use the AUR packages
+
 Add this to your /etc/pacman.conf to use:
 
 	[sigrok]
