@@ -1,0 +1,7 @@
+
+Add this to your /etc/pacman.conf to use:
+
+	[sigrok]
+	Server = https://raw.githubusercontent.com/jmesmon/sigrok-pkgbuilds/repo/$arch
+
+Only x86_64 is supported right now.
