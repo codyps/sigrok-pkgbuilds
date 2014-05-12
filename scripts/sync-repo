@@ -4,6 +4,12 @@ set -eu -o pipefail
 shopt -s extglob
 shopt -s nullglob
 
+reponame=sigrok
+REPO_BRANCH=repo
+REPO="$HOME/g/sigrok-repo"
+MAKEPKG_CONF=/etc/makepkg.conf
+PKGBUILD_DIR="$(dirname "$0")/.."
+
 e () {
 	printf "%s\n" "$*" >>/dev/stderr
 }
@@ -12,20 +18,16 @@ die () {
 	printf "%s\n" "$*"
 }
 
-reponame=sigrok
-REPO="$HOME/g/sigrok-repo"
-
 if ! [ -d "$REPO" ]; then
 	die "repo $REPO does not exist"
 fi
-
-MAKEPKG_CONF=/etc/makepkg.conf
 
 . "$MAKEPKG_CONF"
 
 mkdir -p "$REPO/$CARCH"
 
-PKGBUILD_DIR="$(dirname "$0")/.."
+db_base="$REPO/$CARCH/$reponame.db"
+db_full="$db_base".tar.xz
 
 for pkgbuild in $PKGBUILD_DIR/*/PKGBUILD; do
 	echo ">>> $pkgbuild"
@@ -34,10 +36,15 @@ for pkgbuild in $PKGBUILD_DIR/*/PKGBUILD; do
 	. "$(basename "$pkgbuild")"
 	PKG="$pkgname-$pkgver-$pkgrel-$CARCH$PKGEXT"
 	cp "$PKG" "$REPO/$CARCH/"
-	repo-add "$REPO/$CARCH/$reponame.db.tar.xz" "$REPO/$CARCH/$PKG"
+	repo-add "$db_full" "$REPO/$CARCH/$PKG"
 	popd >/dev/null
 done
+
+# repo-add creates symlinks, github raw doesn't work with symlinks
+rm "$db_base"
+ln "$db_full" "$db_base"
 
 pkgbuild_ver="$(git -C "$PKGBUILD_DIR" describe --always)"
 git -C "$REPO" add -A .
 git -C "$REPO" commit -m "Sync to $pkgbuild_ver"
+git -C "$REPO" push origin repo
