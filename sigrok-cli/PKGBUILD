@@ -1,6 +1,6 @@
 # Maintainer: codyps <archlinux@codyps.com>
 pkgname=sigrok-cli
-pkgver=0.4.0
+pkgver=0.5.0
 pkgrel=1
 pkgdesc="Client software that supports various hardware logic analyzers, CLI client (git version)"
 arch=('i686' 'x86_64' 'arm')

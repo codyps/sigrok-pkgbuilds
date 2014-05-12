@@ -1,7 +1,7 @@
 # Maintainer: codyps <archlinux@codyps.com>
 # https://github.com/jmesmon/sigrok-pkgbuilds
 pkgname=libsigrok
-pkgver=0.2.1
+pkgver=0.3.0
 pkgrel=1
 pkgdesc="Client software that supports various hardware logic analyzers, core library"
 arch=('x86_64' 'i686' 'arm')
@@ -13,7 +13,6 @@ optdepends=('libusbx: several devices'
             'alsa-lib: alsa device'
             'libftdi: several devices')
 source=("http://sigrok.org/download/source/${pkgname}/${pkgname}-${pkgver}.tar.gz")
-md5sums=('283acbf8a1e5c8e38fee0a361a581aa0')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
@@ -25,3 +24,5 @@ package() {
   cd "$srcdir/$pkgname-$pkgver"
   make DESTDIR="$pkgdir" install
 }
+
+md5sums=('6bc9fa9da9b791b8da961003244adeec')
