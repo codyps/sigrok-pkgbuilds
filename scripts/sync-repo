@@ -1,0 +1,43 @@
+#! /bin/bash
+
+set -eu -o pipefail
+shopt -s extglob
+shopt -s nullglob
+
+e () {
+	printf "%s\n" "$*" >>/dev/stderr
+}
+
+die () {
+	printf "%s\n" "$*"
+}
+
+reponame=sigrok
+REPO="$HOME/g/sigrok-repo"
+
+if ! [ -d "$REPO" ]; then
+	die "repo $REPO does not exist"
+fi
+
+MAKEPKG_CONF=/etc/makepkg.conf
+
+. "$MAKEPKG_CONF"
+
+mkdir -p "$REPO/$CARCH"
+
+PKGBUILD_DIR="$(dirname "$0")/.."
+
+for pkgbuild in $PKGBUILD_DIR/*/PKGBUILD; do
+	echo ">>> $pkgbuild"
+	pushd "$(dirname "$pkgbuild")" >/dev/null
+	makepkg -i --noconfirm || { e "makepkg of $pkgbuild failed, skipping"; continue; }
+	. "$(basename "$pkgbuild")"
+	PKG="$pkgname-$pkgver-$pkgrel-$CARCH$PKGEXT"
+	cp "$PKG" "$REPO/$CARCH/"
+	repo-add "$REPO/$CARCH/$reponame.db.tar.xz" "$REPO/$CARCH/$PKG"
+	popd >/dev/null
+done
+
+pkgbuild_ver="$(git -C "$PKGBUILD_DIR" describe --always)"
+git -C "$REPO" add -A .
+git -C "$REPO" commit -m "Sync to $pkgbuild_ver"
